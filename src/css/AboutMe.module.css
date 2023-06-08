@@ -1,0 +1,65 @@
+.mainContainer {
+    height: 100%;
+    width: 100vw;
+
+    background-color: #373737;
+    background-image: url(../Assets/AboutMeBackground.svg);
+
+    display: flex;
+    overflow: auto;
+}
+
+.mainContent {
+  padding: 5rem;
+  background-color: rgba(33, 33, 33, 0.9);
+  width: 100%;
+  margin: 5rem;
+  border-radius: 20px;
+}
+
+.TextArea {
+    width: 70%;
+    float: left;
+  }
+
+.Image {
+  display: flex;
+  width: 30%;
+  height: 100%;
+  float: right;
+  align-items: center;
+}
+
+.leftContainer {
+    margin: auto;
+    height:auto;
+    width: auto;
+    padding: .5rem;
+  }
+  
+  .rightContainer {
+    margin: auto;
+    height: auto;
+    width: auto;
+    padding: .5rem;
+  }
+
+.SpecialText {
+  color: rgb(244,68,46);
+}
+
+.MainText {
+    font-weight: 700;
+    font-size: 72px;
+    width: auto;
+    margin: 0;
+  }
+  
+  .SecondaryText {
+    font-size: 32px;
+  }
+
+  .ListText {
+    padding: 0;
+    margin: 0;
+  }

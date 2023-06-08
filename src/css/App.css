@@ -1,0 +1,132 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;300;500;700&display=swap');
+
+.App {
+  width: 100vw;
+  height: 100%;
+
+  color: #FFFFFC;
+  font-family: 'Inter', sans-serif;
+  
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.app-container {
+  height: 100vh;
+  background: #f4442e;
+  background: -moz-linear-gradient(90deg, rgba(244,68,46,1) 0%, rgba(193,102,107,1) 100%);
+  background: -webkit-linear-gradient(90deg, rgba(244,68,46,1) 0%, rgba(193,102,107,1) 100%);
+  background: linear-gradient(90deg, rgba(244,68,46,1) 0%, rgba(193,102,107,1) 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#f4442e",endColorstr="#c1666b",GradientType=1);
+}
+
+#AboutMe {
+  height: 100vh;
+  width: auto;
+}
+
+.TextArea {
+  display: flex;
+  align-items: center;
+  height: 100vh;
+}
+
+.MainText {
+  font-weight: 700;
+  font-size: 72px;
+  margin: 0;
+}
+
+.SecondaryText {
+  font-size: 32px;
+}
+
+.leftContainer {
+  margin: auto;
+}
+
+.rightContainer {
+  margin: auto;
+}
+
+.custom-shape-divider-bottom-1684189163 {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.custom-shape-divider-bottom-1684189163 svg {
+  position: relative;
+  display: block;
+  width: calc(114% + 1.3px);
+  height: 103px;
+}
+
+.custom-shape-divider-bottom-1684189163 .shape-fill {
+  fill: #373737;
+}
+
+button {
+  --primary-color: #373737;
+  --secondary-color: #fff;
+  --hover-color: #111;
+  --arrow-width: 10px;
+  --arrow-stroke: 2px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 20px;
+  color: var(--secondary-color);
+  padding: 1em 1.8em;
+  background: var(--primary-color);
+  display: flex;
+  transition: 0.2s background;
+  align-items: center;
+  gap: 0.6em;
+  font-weight: bold;
+  font-family: 'Inter', sans-serif;
+}
+
+button .arrow-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+button .arrow {
+  margin-top: 1px;
+  width: var(--arrow-width);
+  background: var(--primary-color);
+  height: var(--arrow-stroke);
+  position: relative;
+  transition: 0.2s;
+}
+
+button .arrow::before {
+  content: "";
+  box-sizing: border-box;
+  position: absolute;
+  border: solid var(--secondary-color);
+  border-width: 0 var(--arrow-stroke) var(--arrow-stroke) 0;
+  display: inline-block;
+  top: -3px;
+  right: 3px;
+  transition: 0.2s;
+  padding: 3px;
+  transform: rotate(-45deg);
+}
+
+button:hover {
+  background-color: var(--hover-color);
+}
+
+button:hover .arrow {
+  background: var(--secondary-color);
+}
+
+button:hover .arrow:before {
+  right: 0;
+}
