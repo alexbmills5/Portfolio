@@ -219,10 +219,10 @@ export default function Page() {
         
         {/* ABOUT ME */}
         <section className="about-me flex justify-center w-full h-[100svh] bg-zinc-900 py-12 xl:py-24 lg:py-32">
-          <div className="container px-4 xl:px-12 text-center place-items-center">
+          <div className="container flex flex-col px-4 xl:px-12 text-center place-items-center">
             <PiUserBold size={72} />
             <motion.p 
-              className="text-3xl font-bold pt-6 tracking-tighter sm:text-5xl"
+              className="text-3xl font-bold py-6 tracking-tighter sm:text-5xl"
               initial={{ y: -20, opacity: 0}}
               whileInView={{ y: 0, opacity: 1}}
               transition={{ duration: 0.3 }}
@@ -230,7 +230,7 @@ export default function Page() {
               About Me
             </motion.p>
 
-            <div className="flex gap-12 justify-center place-items-center">
+            <div className="flex justify-center place-items-center">
               <div className="w-full">
                 <motion.div 
                   className="w-full flex justify-left text-2xl pt-4 text-center xl:text-left"
@@ -297,10 +297,16 @@ export default function Page() {
         
         {/* MY PROJECTS */}
         <section className="projects flex justify-center w-full h-[100svh] bg-zinc-900 py-12 xl:py-24 lg:py-32">
-          <div className="container px-4 xl:px-6 text-center">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
+          <div className="container flex flex-col place-items-center px-4 xl:px-6 text-center">
+            <PiBriefcaseBold size={72} />
+            <motion.p 
+              className="text-3xl font-bold py-6 tracking-tighter sm:text-5xl"
+              initial={{ y: -20, opacity: 0}}
+              whileInView={{ y: 0, opacity: 1}}
+              transition={{ duration: 0.3 }}
+            >
               My Projects
-            </h2>
+            </motion.p>
             <div className="grid gap-8 mt-8 grid-cols-2 sm:grid-cols-4 xl:grid-cols-4 lg:grid-cols-6">
               {workExamples.map((x) => (
                 <div key={x.displayName}>
@@ -322,9 +328,9 @@ export default function Page() {
         <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="4xl" backdrop="blur" radius="none">
           <ModalContent>
             {(onClose) => (
-              <>
-                <img className="mt-56" src={currentWorkExample} />
-              </>
+              <div>
+                <img src={currentWorkExample} />
+              </div>
             )}
           </ModalContent>
         </Modal>
