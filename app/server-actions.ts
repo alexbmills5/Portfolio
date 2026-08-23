@@ -1,22 +1,41 @@
-export async function SendEmail(senderName, senderEmail, senderMessage) {
-  let content = `**Name:** ${senderName}\n**Email:** ${senderEmail}\n**Message:** ${senderMessage}`;
+"use server";
 
-  fetch(
-    "https://discord.com/api/webhooks/1181389090294345818/CU0MA-15uTeUewoCWNu9UdRtkCTrawHb4X8qmYx63X3r5l73ukkTeM6AgXDI_uPE-DkA",
-    {
+export type SendEmailResult = {
+  ok: boolean;
+};
+
+export async function SendEmail(
+  senderName: string,
+  senderEmail: string,
+  senderMessage: string,
+): Promise<SendEmailResult> {
+  const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+  const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(senderEmail);
+
+  if (
+    !webhookUrl ||
+    !senderName.trim() ||
+    !validEmail ||
+    !senderMessage.trim() ||
+    senderName.length > 120 ||
+    senderEmail.length > 254 ||
+    senderMessage.length > 4000
+  ) {
+    return { ok: false };
+  }
+
+  try {
+    const response = await fetch(webhookUrl, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        content: content,
+        content: `**Name:** ${senderName.trim()}\n**Email:** ${senderEmail.trim()}\n**Message:** ${senderMessage.trim()}`,
       }),
-    },
-  ).then((response) => {
-    if (response.ok) {
-      return true;
-    } else {
-      return false;
-    }
-  });
+      cache: "no-store",
+    });
+
+    return { ok: response.ok };
+  } catch {
+    return { ok: false };
+  }
 }

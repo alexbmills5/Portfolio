@@ -1,409 +1,428 @@
 "use client";
-import { useState } from "react";
-import dynamic from 'next/dynamic';
-import { motion } from "framer-motion";
-import { scroller } from "react-scroll";
-import { 
-  PiBriefcaseBold, 
-  PiFileJsx, 
-  PiFileSql, 
-  PiFileTsx, 
-  PiFolderBold, 
-  PiGithubLogo, 
-  PiHouseBold,
-  PiUserBold, 
-  PiWrenchBold
-} from "react-icons/pi";
-import {
-  SiAmazonaws,
-  SiGithubactions,
-  SiMicrosoftazure,
-  SiNextdotjs,
-  SiNodedotjs,
-  SiReact,
-} from "react-icons/si";
-import { TbBrandCSharp, TbBrandPython } from "react-icons/tb";
+
+import Image from "next/image";
+import { FormEvent, useState } from "react";
 import { Syne } from "next/font/google";
-import { Button, Card, CardBody, CardHeader, Code, Input, Modal, ModalContent, Textarea, Tooltip, useDisclosure } from "@nextui-org/react";
-import Logo from "./components/Logo";
+import { PiArrowDownRight, PiArrowUpRight } from "react-icons/pi";
 import { SendEmail } from "./server-actions";
 
 const syne = Syne({
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["500", "600", "700", "800"],
   subsets: ["latin"],
-  variable: "--font-kanit",
+  variable: "--font-display",
 });
 
-const navBar = [
-  {displayName: 'Home', id: 'home', icon: <PiHouseBold />},
-  {displayName: 'About Me', id: 'about-me', icon: <PiUserBold />},
-  {displayName: 'Projects', id: 'projects', icon: <PiFolderBold />},
-  {displayName: 'Work Experience', id: 'work-experience', icon: <PiBriefcaseBold />},
-  {displayName: 'Tools', id: 'tools', icon: <PiWrenchBold />},
-]
+const upcomingWork = [
+  { label: "Campaign graphics", status: "Case study coming soon" },
+  { label: "Poster design", status: "Case study coming soon" },
+  { label: "Motion and typography", status: "Case study coming soon" },
+];
 
-const technologies = [
-  { displayName: 'JavaScript', icon: <PiFileJsx />},
-  { displayName: 'TypeScript', icon: <PiFileTsx />},
-  { displayName: 'C# 10.0', icon: <TbBrandCSharp />},
-  { displayName: 'Python', icon: <TbBrandPython />},
-  { displayName: 'Azure', icon: <SiMicrosoftazure />},
-  { displayName: 'AWS', icon: <SiAmazonaws />},
-  { displayName: 'SQL', icon: <PiFileSql />},
-  { displayName: 'GitHub', icon: <PiGithubLogo />},
-  { displayName: 'GitHub Actions', icon: <SiGithubactions />},
-  { displayName: 'Node.JS', icon: <SiNodedotjs />},
-  { displayName: 'React', icon: <SiReact />},
-  { displayName: 'Next.JS', icon: <SiNextdotjs />},
-]
-
-const workExamples = [
-  { displayName: 'Crystal Clear Screens', displaySrc: 'CrystalClear.jpg', fullSrc: ''}
-]
-
-const tooltipMotionProps = {
-  variants: {
-    exit: {
-      opacity: 0,
-      transition: {
-        duration: 0.1,
-        ease: "easeIn",
-      }
-    },
-    enter: {
-      opacity: 1,
-      transition: {
-        duration: 0.15,
-        ease: "easeOut",
-      }
-    },
-  },
-}
-
-type ShapeProps = {
-  position?: string;
-  className?: string;
-  width?: object;
-  zIndex?: number;
-  size?: object | number | string;
-  color?: string;
-  // Add other props based on the library's documentation
-};
+type FormStatus = "idle" | "sending" | "sent" | "error";
 
 export default function Page() {
-  const [senderName, setSenderName] = useState<string>();
-  const [senderEmail, setSenderEmail] = useState<string>();
-  const [senderMessage, setSenderMessage] = useState<string>();
-  const [currentWorkExample, setCurrentWorkExample] = useState<string>();
-  const {isOpen, onOpen, onOpenChange} = useDisclosure();
-  const age = new Date().getFullYear() - 2003 - (new Date() < new Date('03/03/' + new Date().getFullYear()) ? 1 : 0);
+  const [senderName, setSenderName] = useState("");
+  const [senderEmail, setSenderEmail] = useState("");
+  const [senderMessage, setSenderMessage] = useState("");
+  const [formStatus, setFormStatus] = useState<FormStatus>("idle");
+  const [retalsOpen, setRetalsOpen] = useState(false);
 
-  // Dynamic imported components
-  const Donut = dynamic<ShapeProps>(() => import('react-awesome-shapes').then(mod => mod.Donut), { ssr: false });
-  const Circle = dynamic<ShapeProps>(() => import('react-awesome-shapes').then(mod => mod.Circle), { ssr: false });
-  const CircleGrid = dynamic<ShapeProps>(() => import('react-awesome-shapes').then(mod => mod.CircleGrid), { ssr: false });
+  const handleSendMessage = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setFormStatus("sending");
 
-  const handleSendMessage = async () => {
-    await SendEmail(senderName, senderEmail, senderMessage);
+    const result = await SendEmail(senderName, senderEmail, senderMessage);
+    if (!result.ok) {
+      setFormStatus("error");
+      return;
+    }
 
     setSenderName("");
     setSenderEmail("");
     setSenderMessage("");
+    setFormStatus("sent");
   };
 
-  const handleOpenWorkExample = (src) => {
-    if(src) {
-      setCurrentWorkExample(src);
-      onOpen();
-    }
-  }
-
   return (
-    <div className={`${syne.className} flex flex-col min-h-screen`}>
-      <main className="w-full">
-        <Donut
-          position="absolute"
-          className="top-[260px] left-[810px] opacity-70"
-          width={['60px', '60px', '60px', '60px']}
-          color="gray"
-          size="750px"
-          zIndex={11}
-        />
+    <div className={`${syne.variable} site-shell`}>
+      <a className="skip-link" href="#main-content">
+        Skip to work
+      </a>
 
-        {/* NAVBAR */}
-        <div className="absolute hidden md:flex flex w-full justify-center">
-          <div className="mt-6 w-54 h-12 rounded-xl bg-zinc-800 shadow-xl">
-            {navBar.map((x) => (
-              <Tooltip 
-                key={x.displayName} 
-                content={x.displayName} 
-                delay={0} 
-                closeDelay={0} 
-                motionProps={tooltipMotionProps}
-              >
-                <Button 
-                  isIconOnly 
-                  variant="light" 
-                  size="lg"
-                  onClick={() => scroller.scrollTo(x.id, {
-                    delay: 100,
-                    smooth: true,
-                    duration: 500
-                  })}>{x.icon}</Button>
-              </Tooltip>
-            ))}
+      <header className="site-header">
+        <a className="brand" href="#top" aria-label="Alex Mills, home">
+          <Image
+            className="brand-mark"
+            src="/alex-mills-logo.png"
+            alt=""
+            width={40}
+            height={40}
+            sizes="40px"
+            priority
+          />
+          <span>Alex Mills</span>
+        </a>
+
+        <nav className="main-nav" aria-label="Primary navigation">
+          <a href="#work">Work</a>
+          <a href="#about">About</a>
+          <a href="#contact">Contact</a>
+        </nav>
+
+        <span className="header-coordinate" aria-hidden="true">
+          Graphic design · Portfolio
+        </span>
+      </header>
+
+      <main id="main-content">
+        <section className="hero" id="top" aria-labelledby="hero-title">
+          <div className="cosmos" aria-hidden="true">
+            <span className="star-glint star-glint-one" />
+            <span className="star-glint star-glint-two" />
+            <span className="star-glint star-glint-three" />
+            <span className="shooting-star" />
           </div>
-        </div>
-
-        {/* HOME */}
-        <section className="home flex flex-wrap text-center justify-center xl:justify-between place-items-center w-full h-[100svh] py-12 md:py-32 xl:px-80 bg-zinc-900">
-          <div className="relative">
-            <CircleGrid 
-              position="absolute"
-              className="top-[-45px] left-[-45px]"
-              color="maroon"
-              size="175px"
-              zIndex={1}
+          <div className="hero-refraction" aria-hidden="true" />
+          <div className="hero-logo" aria-hidden="true">
+            <Image
+              src="/alex-mills-logo.png"
+              alt=""
+              width={1254}
+              height={1254}
+              sizes="(max-width: 640px) 78vw, (max-width: 1000px) 66vw, 52vw"
+              priority
             />
-
-            <Donut
-              position="absolute"
-              className="top-[145px] left-[90px] opacity-50"
-              width={['40px', '40px', '60px', '60px']}
-              color="gray"
-              size="250px"
-              zIndex={1}
-            />
-
-            <Card className="bg-white w-80 z-10 flex justify-center place-items-center px-4">
-              <Logo className="h-64 w-64 hover:cursor-pointer" />
-
-              <motion.p 
-                className="text-2xl font-bold text-zinc-900"
-                initial={{ y: -10, opacity: 0 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                ALEX MILLS
-              </motion.p>
-              <motion.p 
-                className="text-lg text-zinc-600 pt-8 pb-6"
-                initial={{ y: -10, opacity: 0 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.15 }}
-              >
-                A Software Engineer who has developed countless innovative solutions.
-              </motion.p>
-            </Card>
           </div>
-          <div>
-            <motion.div
-              className="text-center lg:text-left font-bold tracking-tighter pt-6 px-6 xl:px-0"
-              initial={{ y: -10, opacity: 0 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <p className="text-4xl lg:text-6xl 2xl:text-8xl">SOFTWARE</p>
-              <p className="text-4xl lg:text-6xl 2xl:text-8xl text-zinc-600">ENGINEER</p>
-            </motion.div>
-            <motion.p
-              className="max-w-[700px] text-left text-zinc-500 xl:text-xl mt-4 mx-auto dark:text-gray-400 px-6 xl:px-0"
-              initial={{ y: -10, opacity: 0 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.15 }}
-            >
-              Passionate about creating intuitive and engaging user experiences. Specialize in transforming ideas into beautifully crafted products.
-            </motion.p>
+
+          <div className="hero-kicker">
+            <span>Independent graphic designer</span>
           </div>
+
+          <div className="hero-copy">
+            <h1 id="hero-title">
+              Visual ideas,
+              <span>made distinct.</span>
+            </h1>
+            <p>
+              Graphic design, identity systems, and digital experiences by Alex
+              Mills.
+            </p>
+          </div>
+
+          <a className="hero-scroll" href="#work">
+            View selected work <PiArrowDownRight aria-hidden="true" />
+          </a>
         </section>
-        
-        {/* ABOUT ME */}
-        <section className="about-me flex justify-center w-full h-[100svh] bg-zinc-900 py-12 xl:py-24 lg:py-32">
-          <div className="container flex flex-col px-4 xl:px-12 text-center place-items-center">
-            <PiUserBold size={72} />
-            <motion.p 
-              className="text-3xl font-bold py-6 tracking-tighter sm:text-5xl"
-              initial={{ y: -20, opacity: 0}}
-              whileInView={{ y: 0, opacity: 1}}
-              transition={{ duration: 0.3 }}
-            >
-              About Me
-            </motion.p>
 
-            <div className="flex justify-center place-items-center">
-              <div className="w-full">
-                <motion.div 
-                  className="w-full flex justify-left text-2xl pt-4 text-center xl:text-left"
-                  initial={{ y: -20, opacity: 0}}
-                  whileInView={{ y: 0, opacity: 1}}
-                  transition={{ duration: 0.3, delay: 0.15 }}
-                >
-                </motion.div>
+        <section className="work-section" id="work" aria-labelledby="work-title">
+          <div className="section-heading">
+            <p className="eyebrow">Portfolio</p>
+            <h2 id="work-title">Selected work</h2>
+            <p className="section-note">
+              A focused selection of visual design and digital work. More case
+              studies will be added as they are completed.
+            </p>
+          </div>
 
-                <motion.div
-                  initial={{ opacity: 0}}
-                  whileInView={{ opacity: 1}}
-                  transition={{ duration: 0.3, delay: 0.30 }}
+          <div className="work-grid">
+            <article className="retals-case-study" aria-labelledby="retals-title">
+              <header className="case-study-preview">
+                <div className="case-preview-art" aria-hidden="true">
+                  <Image
+                    src="/retals-wordmark-script.png"
+                    alt=""
+                    width={2172}
+                    height={724}
+                    sizes="(max-width: 640px) calc(100vw - 2rem), 15rem"
+                  />
+                </div>
+
+                <div className="case-preview-copy">
+                  <p className="case-study-type">Brand identity · Esports</p>
+                  <h3 id="retals-title">Retals</h3>
+                  <p>
+                    Logo explorations for Rocket League content creator Retals,
+                    developed around speed, competition, and a recognizable R mark.
+                  </p>
+                </div>
+
+                <button
+                  className="case-preview-toggle"
+                  type="button"
+                  aria-expanded={retalsOpen}
+                  aria-controls="retals-project-details"
+                  onClick={() => setRetalsOpen((isOpen) => !isOpen)}
                 >
-                  <Card>
-                    <CardHeader>
-                      <div className="flex flex-row gap-2 w-full h-4">
-                        <Circle 
-                          size={['15px', '15px', '15px', '15px']}
-                          position="relative"
-                          color="#FF5F57"
-                        />
-                        <Circle 
-                          size={['15px', '15px', '15px', '15px']}
-                          position="relative"
-                          color="#FEBD40"
-                        />
-                        <Circle 
-                          size={['15px', '15px', '15px', '15px']}
-                          position="relative"
-                          color="#3FC948"
+                  <span>{retalsOpen ? "Close project" : "View project"}</span>
+                  <PiArrowDownRight aria-hidden="true" />
+                </button>
+              </header>
+
+              {retalsOpen && (
+                <div className="case-study-details" id="retals-project-details">
+                  <div className="retals-gallery">
+                    <figure className="retals-board retals-board-featured">
+                      <div className="retals-artwork retals-artwork-wide">
+                        <Image
+                          src="/retals-wordmark-script.png"
+                          alt="Angular Retals script wordmark with a star integrated into the letter R"
+                          width={2172}
+                          height={724}
+                          sizes="(max-width: 640px) calc(100vw - 2rem), 92vw"
                         />
                       </div>
-                    </CardHeader>
+                      <figcaption>
+                        <span>Direction 03</span>
+                        <span>Script wordmark</span>
+                      </figcaption>
+                    </figure>
 
-                    <CardBody className="p-4 w-full">
-                      <div className="font-mono">
-                        <p><span className="text-red-600">Alex@Portfolio</span>:<span className="text-blue-500">/</span>$ neofetch</p>
-
-                        <div className="flex mt-6 gap-4">
-                          <Logo motionEnabled={false} className="h-72 w-72" />
-
-                          <div>
-                            <p><span className="text-red-600">Host</span>: Alex Mills</p>
-                            <p>--------------------------------------</p>
-                            <p><span className="text-red-600">Model</span>: He/Him</p>
-                            <p><span className="text-red-600">Uptime</span>: {age} years</p>
-                            <p><span className="text-red-600">Packages</span>: {workExamples.length}</p>
-                            <p className="text-pretty"><span className="text-red-600">Hobbies</span>: ["3D Printing", "Programming", "Video Games"]</p>
-                            <p className="text-pretty"><span className="text-red-600">Languages</span>: ["C#", "JS", "TS", "Python"]</p>
-                          </div>
-                        </div>
-
-                        <p><span className="text-red-600">Alex@Portfolio</span>:<span className="text-blue-500">/</span>$</p>
+                    <figure className="retals-board retals-board-half">
+                      <div className="retals-artwork">
+                        <Image
+                          src="/retals-wordmark-crown.png"
+                          alt="Retals wordmark concept with an angular crown above the letter R"
+                          width={1672}
+                          height={941}
+                          sizes="(max-width: 640px) calc(100vw - 2rem), 46vw"
+                        />
                       </div>
-                    </CardBody>
-                  </Card>
-                </motion.div>
+                      <figcaption>
+                        <span>Direction 01</span>
+                        <span>Crown wordmark</span>
+                      </figcaption>
+                    </figure>
+
+                    <figure className="retals-board retals-board-half">
+                      <div className="retals-artwork">
+                        <Image
+                          src="/retals-wordmark-star.png"
+                          alt="Retals wordmark concept with a sweeping R and four-point star"
+                          width={1672}
+                          height={941}
+                          sizes="(max-width: 640px) calc(100vw - 2rem), 46vw"
+                        />
+                      </div>
+                      <figcaption>
+                        <span>Direction 02</span>
+                        <span>Star wordmark</span>
+                      </figcaption>
+                    </figure>
+
+                    <figure className="retals-board retals-board-mark-small">
+                      <div className="retals-artwork retals-artwork-mark">
+                        <Image
+                          src="/retals-monogram-crown.png"
+                          alt="Standalone Retals R monogram with crown"
+                          width={286}
+                          height={283}
+                          sizes="(max-width: 640px) calc(100vw - 2rem), 36vw"
+                        />
+                      </div>
+                      <figcaption>
+                        <span>Core mark</span>
+                        <span>Crown monogram</span>
+                      </figcaption>
+                    </figure>
+
+                    <figure className="retals-board retals-board-mark-wide">
+                      <div className="retals-artwork retals-artwork-mark">
+                        <Image
+                          src="/retals-monogram-star.png"
+                          alt="Standalone Retals R monogram with integrated star"
+                          width={495}
+                          height={291}
+                          sizes="(max-width: 640px) calc(100vw - 2rem), 54vw"
+                        />
+                      </div>
+                      <figcaption>
+                        <span>Core mark</span>
+                        <span>Star monogram</span>
+                      </figcaption>
+                    </figure>
+                  </div>
+                </div>
+              )}
+            </article>
+
+            <section className="logos-section" aria-labelledby="logos-title">
+              <header className="logos-heading">
+                <div>
+                  <p className="case-study-type">Identity studies</p>
+                  <h3 id="logos-title">Personal logos</h3>
+                </div>
+                <p>
+                  A collection of personal marks and wordmark studies across ink
+                  and chrome finishes.
+                </p>
+              </header>
+
+              <div className="logos-gallery">
+                <figure className="logo-board logo-board-wordmark-ink">
+                  <div className="logo-artwork logo-artwork-light">
+                    <Image
+                      src="/personal-wordmark-ink.png"
+                      alt="Black personal wordmark study with sweeping letterforms and a four-point star"
+                      width={1672}
+                      height={941}
+                      sizes="(max-width: 640px) calc(100vw - 2rem), 60vw"
+                    />
+                  </div>
+                  <figcaption>
+                    <span>Wordmark</span>
+                    <span>Ink study</span>
+                  </figcaption>
+                </figure>
+
+                <figure className="logo-board logo-board-mark-ink">
+                  <div className="logo-artwork logo-artwork-light logo-artwork-mark">
+                    <Image
+                      src="/personal-mark-ink.png"
+                      alt="Black personal swoosh mark with a four-point star"
+                      width={1254}
+                      height={1254}
+                      sizes="(max-width: 640px) calc(100vw - 2rem), 30vw"
+                    />
+                  </div>
+                  <figcaption>
+                    <span>Primary mark</span>
+                    <span>Ink study</span>
+                  </figcaption>
+                </figure>
+
+                <figure className="logo-board logo-board-mark-chrome">
+                  <div className="logo-artwork logo-artwork-dark logo-artwork-mark">
+                    <Image
+                      src="/alex-mills-logo.png"
+                      alt="Chrome personal swoosh mark with violet and blue reflections"
+                      width={1254}
+                      height={1254}
+                      sizes="(max-width: 640px) calc(100vw - 2rem), 36vw"
+                    />
+                  </div>
+                  <figcaption>
+                    <span>Primary mark</span>
+                    <span>Chrome study</span>
+                  </figcaption>
+                </figure>
+
+                <figure className="logo-board logo-board-wordmark-chrome">
+                  <div className="logo-artwork logo-artwork-space">
+                    <Image
+                      src="/personal-wordmark-chrome.png"
+                      alt="Chrome personal wordmark with blue and violet light against a star field"
+                      width={2172}
+                      height={724}
+                      sizes="(max-width: 640px) calc(100vw - 2rem), 62vw"
+                    />
+                  </div>
+                  <figcaption>
+                    <span>Wordmark</span>
+                    <span>Chrome study</span>
+                  </figcaption>
+                </figure>
               </div>
-            </div>
+            </section>
 
-          </div>
-        </section>
-        
-        {/* MY PROJECTS */}
-        <section className="projects flex justify-center w-full h-[100svh] bg-zinc-900 py-12 xl:py-24 lg:py-32">
-          <div className="container flex flex-col place-items-center px-4 xl:px-6 text-center">
-            <PiBriefcaseBold size={72} />
-            <motion.p 
-              className="text-3xl font-bold py-6 tracking-tighter sm:text-5xl"
-              initial={{ y: -20, opacity: 0}}
-              whileInView={{ y: 0, opacity: 1}}
-              transition={{ duration: 0.3 }}
-            >
-              My Projects
-            </motion.p>
-            <div className="grid gap-8 mt-8 grid-cols-2 sm:grid-cols-4 xl:grid-cols-4 lg:grid-cols-6">
-              {workExamples.map((x) => (
-                <div key={x.displayName}>
-                  <p className="pb-8 ">{x.displayName}</p>
-                  <motion.div
-                    whileHover={{ scale: 1.1, transition: { duration: 0.05 } }} 
-                    whileTap={{ scale: 1 }}
-                    className="hover:cursor-pointer"
-                  >
-                    <img src={x.displaySrc} onClick={() => handleOpenWorkExample(x.displaySrc)}/>
-                  </motion.div>
+            <aside className="project-index" aria-label="Upcoming project categories">
+              {upcomingWork.map((slot) => (
+                <div className="project-slot" key={slot.label}>
+                  <p>{slot.label}</p>
+                  <small>{slot.status}</small>
                 </div>
               ))}
+            </aside>
+          </div>
+        </section>
+
+        <section className="about-section" id="about" aria-labelledby="about-title">
+          <div className="about-visual" aria-hidden="true">
+            <Image
+              src="/alex-mills-logo.png"
+              alt=""
+              width={1254}
+              height={1254}
+              sizes="(max-width: 1000px) 72vw, 35rem"
+            />
+          </div>
+          <div className="about-copy">
+            <p className="eyebrow">About</p>
+            <h2 id="about-title">
+              Thoughtful design with a clear point of view.
+            </h2>
+            <div className="about-columns">
+              <p>
+                I’m Alex, a multidisciplinary designer interested in identity,
+                typography, and art direction. I turn strong ideas into clear,
+                memorable visual systems.
+              </p>
+              <p>
+                My process balances concept, craft, and practical use. New case
+                studies will show the thinking and execution behind each project.
+              </p>
             </div>
           </div>
         </section>
 
-        {/* MY WORK DISPLAY MODAL */}
-        <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="4xl" backdrop="blur" radius="none">
-          <ModalContent>
-            {(onClose) => (
-              <div>
-                <img src={currentWorkExample} />
-              </div>
-            )}
-          </ModalContent>
-        </Modal>
-
-        <section className="tools flex justify-center w-full bg-zinc-900 py-12 xl:py-24 lg:py-32">
-          <div className="container px-4 xl:px-6 text-center">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
-              Programming Languages, Frameworks & Tools
-            </h2>
-            <div className="grid gap-8 mt-8 grid-cols-2 sm:grid-cols-4 xl:grid-cols-4 lg:grid-cols-6">
-              {technologies.map((x) => (
-                <motion.div className="flex flex-col gap-2 justify-center place-items-center p-4 border-1 rounded-md"
-                initial={{ borderColor: "#ffffff" }}
-                whileHover={{ borderColor: "#D90429" }}
-                key={x.displayName}
-              >
-                <div className="[&>*]:h-12 [&>*]:w-12">{x.icon}</div>
-                <h3 className="text-xl font-bold">{x.displayName}</h3>
-              </motion.div>
-              ))}
-            </div> 
+        <section className="contact-section" id="contact" aria-labelledby="contact-title">
+          <div className="contact-intro">
+            <p className="eyebrow">Contact</p>
+            <h2 id="contact-title">Have a project in mind?</h2>
+            <p>Share a brief, timeline, or early idea. I’ll respond with next steps.</p>
           </div>
-        </section>
 
-        <section
-          className="flex justify-center w-full py-12 xl:py-24 lg:py-32 bg-zinc-900"
-          id="contact"
-        >
-          <div className="container px-4 xl:px-6 text-center">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">
-              Get in Touch
-            </h2>
-            <div className="mt-8 flex flex-col gap-6 max-w-md mx-auto">
-              <Input
+          <form className="contact-form" onSubmit={handleSendMessage}>
+            <label>
+              <span>Name</span>
+              <input
                 value={senderName}
-                onValueChange={setSenderName}
-                variant="bordered"
-                size="sm"
-                className="h-auto"
-                placeholder="Your Name"
+                onChange={(event) => setSenderName(event.target.value)}
                 type="text"
+                name="name"
+                autoComplete="name"
+                required
               />
-              <Input
+            </label>
+            <label>
+              <span>Email</span>
+              <input
                 value={senderEmail}
-                onValueChange={setSenderEmail}
-                variant="bordered"
-                size="sm"
-                className="h-auto"
-                placeholder="Your Email"
+                onChange={(event) => setSenderEmail(event.target.value)}
                 type="email"
+                name="email"
+                autoComplete="email"
+                required
               />
-
-              <Textarea
-                className="h-24 rounded-md"
-                placeholder="Your Message"
-                variant="bordered"
+            </label>
+            <label className="message-field">
+              <span>Project notes</span>
+              <textarea
                 value={senderMessage}
-                onValueChange={setSenderMessage}
+                onChange={(event) => setSenderMessage(event.target.value)}
+                name="message"
+                rows={4}
+                required
               />
-
-              <Button
-                onPress={handleSendMessage}
-                className="self-center"
-                type="submit"
-                color="primary"
-                variant="shadow"
-              >
-                Submit
-              </Button>
+            </label>
+            <div className="form-footer">
+              <p className={`form-status ${formStatus}`} aria-live="polite">
+                {formStatus === "sent" && "Message received. I’ll be in touch."}
+                {formStatus === "error" && "Message could not be sent. Try again later."}
+              </p>
+              <button type="submit" disabled={formStatus === "sending"}>
+                {formStatus === "sending" ? "Sending…" : "Send inquiry"}
+                <PiArrowUpRight aria-hidden="true" />
+              </button>
             </div>
-          </div>
+          </form>
         </section>
       </main>
+
+      <footer className="site-footer">
+        <span>© {new Date().getFullYear()} Alex Mills</span>
+        <span>Independent graphic designer</span>
+        <a href="#top">Back to top ↑</a>
+      </footer>
     </div>
   );
 }
