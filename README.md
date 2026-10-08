@@ -1,6 +1,6 @@
 # Alex Mills portfolio
 
-A graphic design portfolio built with Next.js 14, TypeScript, Tailwind CSS, and NextUI. Its graphite, chrome, and violet visual system is derived from Alex Mills' brand mark.
+A software engineering portfolio built with Next.js 14, React, and TypeScript. The Classic Red palette (near-black, charcoal, deep red, bright red, and neutral grays) includes an interactive canvas visual, professional work summaries, a career timeline, and a downloadable resume.
 
 ## Run locally
 
@@ -9,24 +9,23 @@ npm install
 npm run dev
 ```
 
-## Add portfolio work
+## Update content
 
-1. Put project images in `public/`.
-2. Update `upcomingWork` in `app/page.tsx` with your project categories or case-study links.
-3. Update the project title, discipline, and image alt text together.
+- Professional work and experience are defined in `app/page.tsx`.
+- The interactive engineering visual is in `app/system-visual.tsx`.
+- Styles and responsive layouts are in `app/globals.css`.
+- Replace `public/Alex_Mills_Resume.pdf` when the resume changes.
+- Metadata and the generated social preview live in `app/layout.tsx` and `app/opengraph-image.tsx`.
 
-The current layout uses a project index for upcoming work. When projects are ready, each entry can become a link to a full case study.
+Work visuals are original concept studies based on professional experience; they do not contain client screenshots or patient data.
 
 ## Contact form
 
-Copy `.env.example` to `.env.local` and set a private Discord webhook URL. The webhook is read only by the server action and is never included in the browser bundle.
-
-```env
-DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
-```
+Copy `.env.example` to `.env.local` and set `DISCORD_WEBHOOK_URL`. The existing server action reads this private setting on the server. Without it, the form provides an error and a direct email link.
 
 ## Checks
 
 ```bash
+npx tsc --noEmit
 npm run build
 ```

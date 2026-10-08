@@ -1,20 +1,25 @@
 import { Providers } from "./providers";
-import { Analytics } from '@vercel/analytics/next';
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 
 // These styles apply to every route in the application
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Alex Mills — Graphic Designer",
+  metadataBase: new URL("https://topaso.net"),
+  title: "Alex Mills — Software Engineer",
   description:
-    "Selected graphic design work by Alex Mills, including identity systems, art direction, and digital experiences.",
+    "Alex Mills is a software engineer in Palm Harbor, Florida, building full stack applications, REST APIs, and thoughtful user experiences with React and Node.js.",
   openGraph: {
-    title: "Alex Mills — Graphic Designer",
+    title: "Alex Mills — Software Engineer",
     description:
-      "Graphic design, identity systems, and digital experiences by Alex Mills.",
-    images: ["/alex-mills-logo.png"],
+      "Full stack applications, connected systems, and software that matters. Explore Alex Mills' engineering experience and work.",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Alex Mills — Software Engineer",
+    description: "Full stack applications. REST APIs. Thoughtful software.",
   },
 };
 
@@ -24,8 +29,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark h-full">
-      <body className="h-full overflow-x-hidden">
+    <html lang="en" className="dark">
+      <body>
         <Providers>{children}</Providers>
         <Analytics />
       </body>

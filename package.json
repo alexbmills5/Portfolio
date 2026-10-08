@@ -1,4 +1,7 @@
 {
+  "engines": {
+    "node": "24.x"
+  },
   "dependencies": {
     "@nextui-org/react": "^2.1.12",
     "@vercel/analytics": "^1.4.1",
