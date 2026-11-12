@@ -1,9 +1,17 @@
 import { Providers } from "./providers";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
+import { IBM_Plex_Mono, Source_Sans_3 } from "next/font/google";
 
 // These styles apply to every route in the application
 import "./globals.css";
+
+const sans = Source_Sans_3({ subsets: ["latin"], variable: "--font-sans" });
+const mono = IBM_Plex_Mono({
+  weight: ["400", "500"],
+  subsets: ["latin"],
+  variable: "--font-mono",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://topaso.net"),
@@ -13,13 +21,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Alex Mills — Software Engineer",
     description:
-      "Full stack applications, connected systems, and software that matters. Explore Alex Mills' engineering experience and work.",
+      "Explore Alex Mills’ work in full stack engineering, APIs, and immersive software.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Alex Mills — Software Engineer",
-    description: "Full stack applications. REST APIs. Thoughtful software.",
+    description: "Full stack applications, REST APIs, and immersive software.",
   },
 };
 
@@ -29,7 +37,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className={`dark ${sans.variable} ${mono.variable}`}>
       <body>
         <Providers>{children}</Providers>
         <Analytics />

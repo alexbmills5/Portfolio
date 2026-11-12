@@ -29,3 +29,35 @@ Copy `.env.example` to `.env.local` and set `DISCORD_WEBHOOK_URL`. The existing 
 npx tsc --noEmit
 npm run build
 ```
+
+## Deploy from a local Jenkins server
+
+Jenkins polls GitHub every two minutes. Manual builds deploy to a Vercel
+preview. Builds triggered by a new commit on `main` deploy to production
+after `npm run build` passes. Jenkins submits the checked-out source and
+Vercel builds it with the target environment's settings.
+
+1. Use a Jenkins agent with Git and Node.js 24 on its PATH. The job needs
+   outbound HTTPS access to GitHub, npm, Google Fonts, and Vercel.
+2. In Jenkins, add a **Secret text** credential with ID
+   `portfolio-vercel-token`. Use a Vercel token scoped to the team that owns
+   the `portfolio` project.
+3. Once the Jenkinsfile is on `main`, create a **Pipeline** job and select
+   **Pipeline script from SCM**. Use Git, the repository
+   `https://github.com/alexbmills5/Portfolio.git`, the branch specifier
+   `*/main`, and the script path `Jenkinsfile`.
+4. Select **Build Now** to register polling and create the first preview.
+   Open the deployment URL from the Jenkins console to verify it.
+5. After verifying the preview, add this setting to `vercel.json` on
+   `main` so Jenkins handles production and Vercel continues to create
+   previews for other branches.
+
+   ```json
+   {
+     "git": {
+       "deploymentEnabled": {
+         "main": false
+       }
+     }
+   }
+   ```

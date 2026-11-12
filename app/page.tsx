@@ -1,26 +1,17 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { Syne, Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
 import {
   PiArrowDown,
   PiArrowUpRight,
   PiCheck,
-  PiCode,
+  PiDownloadSimple,
   PiGithubLogo,
   PiPlus,
   PiMinus,
 } from "react-icons/pi";
 import { SendEmail } from "./server-actions";
 import { SystemVisual } from "./system-visual";
-
-const display = Syne({ subsets: ["latin"], variable: "--font-display" });
-const body = Space_Grotesk({ subsets: ["latin"], variable: "--font-body" });
-const mono = IBM_Plex_Mono({
-  weight: ["400", "500"],
-  subsets: ["latin"],
-  variable: "--font-mono",
-});
 
 const experience = [
   {
@@ -70,7 +61,7 @@ const work = [
     number: "01",
     type: "Workforce software",
     company: "Geographic Solutions · 2025 — Present",
-    title: "Software that\nserves people.",
+    title: "Workforce services",
     description:
       "Applications behind workforce development and unemployment insurance. I develop features, streamline data processing, and improve the experience for the people who depend on these systems.",
     tags: ["Application development", "Data workflows", "User experience"],
@@ -82,7 +73,7 @@ const work = [
     number: "02",
     type: "Full stack · Healthcare",
     company: "Alita Systems · 2024 — 2025",
-    title: "Care continues.\nEven offline.",
+    title: "Offline tools for caretakers",
     description:
       "A web application designed around caretakers: complete visit forms and securely access health data offline. React interfaces, Node.js features, and REST APIs connect the experience from front to back.",
     tags: ["React", "Node.js", "REST APIs"],
@@ -94,7 +85,7 @@ const work = [
     number: "03",
     type: "Immersive software",
     company: "DigitalCM · 2023 — 2024",
-    title: "A different\ndimension of learning.",
+    title: "Collaborative VR/AR training",
     description:
       "Collaborative VR/AR training solutions that bring learning into a shared environment. Alongside immersive development, I built APIs and integrated services across full stack applications.",
     tags: ["VR / AR", "Collaboration", "Service integration"],
@@ -110,12 +101,12 @@ function ProjectVisual({ kind }: { kind: string }) {
       <div className="visual-topline">
         <span>
           {kind === "workforce"
-            ? "WORKFLOW / 01"
+            ? "Workflow diagram"
             : kind === "healthcare"
-              ? "APPLICATION / 02"
-              : "SPATIAL / 03"}
+              ? "Interface mockup"
+              : "Spatial model"}
         </span>
-        <span>CONCEPT STUDY</span>
+        <span>Concept study</span>
       </div>
       {kind === "workforce" ? (
         <div className="workflow-art">
@@ -167,8 +158,7 @@ function ProjectVisual({ kind }: { kind: string }) {
             ))}
           </svg>
           <div className="visual-bottomline">
-            <span>People → processes → outcomes</span>
-            <PiArrowUpRight />
+            <span>Intake to delivery</span>
           </div>
         </div>
       ) : kind === "healthcare" ? (
@@ -189,8 +179,7 @@ function ProjectVisual({ kind }: { kind: string }) {
               </div>
               <div className="care-form-art">
                 <span className="care-form-title">
-                  A little less friction.
-                  <br />A little more care.
+                  Visit summary
                 </span>
                 <div className="care-input-art">
                   <span />
@@ -207,9 +196,6 @@ function ProjectVisual({ kind }: { kind: string }) {
               </div>
             </div>
           </div>
-          <span className="care-caption">
-            Interface concept · No patient data
-          </span>
         </div>
       ) : (
         <div className="spatial-art">
@@ -245,18 +231,28 @@ export default function Page() {
   const [formStatus, setFormStatus] = useState<FormStatus>("idle");
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) setActiveSection(entry.target.id);
-        });
-      },
-      { rootMargin: "-15% 0px -65% 0px", threshold: 0 },
-    );
-    document
-      .querySelectorAll("main > section[id]")
-      .forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
+    const sections = Array.from(
+      document.querySelectorAll("main > section[id]"),
+    ).reverse();
+    const updateActiveSection = () => {
+      const atBottom =
+        window.scrollY + window.innerHeight >=
+        document.documentElement.scrollHeight - 2;
+      const active = atBottom
+        ? sections[0]
+        : sections.find(
+            (section) =>
+              section.getBoundingClientRect().top <= window.innerHeight * 0.25,
+          );
+      setActiveSection(active?.id ?? "");
+    };
+    updateActiveSection();
+    window.addEventListener("scroll", updateActiveSection, { passive: true });
+    window.addEventListener("resize", updateActiveSection);
+    return () => {
+      window.removeEventListener("scroll", updateActiveSection);
+      window.removeEventListener("resize", updateActiveSection);
+    };
   }, []);
 
   const handleSendMessage = async (event: FormEvent<HTMLFormElement>) => {
@@ -279,10 +275,7 @@ export default function Page() {
   };
 
   return (
-    <div
-      className={`${display.variable} ${body.variable} ${mono.variable} site-shell`}
-      id="top"
-    >
+    <div className="site-shell" id="top">
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>
@@ -305,63 +298,48 @@ export default function Page() {
             </a>
           ))}
         </nav>
-        <a className="header-contact" href="#contact">
-          Let’s talk <PiArrowUpRight aria-hidden="true" />
+        <a
+          className="header-contact"
+          href="#contact"
+          aria-current={activeSection === "contact" ? "location" : undefined}
+        >
+          Contact <PiArrowUpRight aria-hidden="true" />
         </a>
       </header>
 
-      <main id="main-content">
+      <main id="main-content" tabIndex={-1}>
         <section
           className="hero section-wrap"
           id="intro"
           aria-labelledby="hero-title"
         >
-          <div className="hero-topline">
-            <span className="eyebrow">
-              <i className="status-dot" /> Software engineer
-            </span>
-            <span className="hero-location">Palm Harbor, Florida / US</span>
-          </div>
           <div className="hero-main">
             <div className="hero-copy">
               <h1 id="hero-title">
-                Built to work.
-                <br />
-                <span>
-                  Made to
-                  <br className="desktop-break" /> matter.
-                </span>
+                Alex Mills<span>.</span>
               </h1>
-              <p>
-                I’m Alex Mills. I build full stack applications, connect systems
-                through APIs, and turn complex workflows into software people
-                can use.
+              <p className="hero-role">Software engineer</p>
+              <p className="hero-description">
+                I build full stack applications and APIs that make complex
+                workflows easier to use.
               </p>
               <div className="hero-actions">
                 <a className="primary-link" href="#work">
-                  Explore my work <PiArrowDown aria-hidden="true" />
+                  View my work <PiArrowDown aria-hidden="true" />
                 </a>
                 <a className="text-link" href="/Alex_Mills_Resume.pdf" download>
-                  Download résumé <PiArrowUpRight aria-hidden="true" />
+                  Résumé <PiDownloadSimple aria-hidden="true" />
                 </a>
               </div>
+              <p className="hero-location">Based in Palm Harbor, Florida</p>
             </div>
             <SystemVisual />
-          </div>
-          <div className="hero-bottom">
-            <span>
-              <PiCode aria-hidden="true" /> Ideas into interfaces. Interfaces
-              into impact.
-            </span>
-            <a href="#work">
-              Scroll to explore <PiArrowDown aria-hidden="true" />
-            </a>
           </div>
         </section>
 
         <div className="skills-strip" aria-label="Core technical skills">
           <div className="section-wrap">
-            <span className="strip-label">Across the stack</span>
+            <span className="strip-label">Core skills</span>
             {[
               "React",
               "Node.js",
@@ -372,7 +350,6 @@ export default function Page() {
             ].map((skill) => (
               <span className="strip-skill" key={skill}>
                 {skill}
-                <i aria-hidden="true">+</i>
               </span>
             ))}
           </div>
@@ -384,20 +361,10 @@ export default function Page() {
           aria-labelledby="work-title"
         >
           <div className="section-heading">
-            <p className="eyebrow">
-              <span className="section-index">01 /</span> Selected work
+            <h2 id="work-title">Selected work</h2>
+            <p>
+              Workforce services, healthcare software, and immersive training.
             </p>
-            <div>
-              <h2 id="work-title">
-                Real problems.
-                <br />
-                <span>Thoughtful software.</span>
-              </h2>
-              <p>
-                A few of the areas I’ve worked in, and the engineering behind
-                them.
-              </p>
-            </div>
           </div>
           <div className="project-list">
             {work.map((project) => (
@@ -408,15 +375,8 @@ export default function Page() {
               >
                 <ProjectVisual kind={project.kind} />
                 <div className="project-copy">
-                  <div className="project-eyebrow">
-                    <span>{project.type}</span>
-                    <span>{project.number}</span>
-                  </div>
-                  <h3 id={`project-${project.number}`}>
-                    {project.title.split("\n").map((line, i) => (
-                      <span key={i}>{line}</span>
-                    ))}
-                  </h3>
+                  <h3 id={`project-${project.number}`}>{project.title}</h3>
+                  <p className="project-type">{project.type}</p>
                   <p className="project-description">{project.description}</p>
                   <div className="tag-list">
                     {project.tags.map((tag) => (
@@ -457,9 +417,8 @@ export default function Page() {
             ))}
           </div>
           <p className="work-disclosure">
-            <span aria-hidden="true">↳</span> Professional work, described from
-            my experience. Visuals are original concept studies, not client
-            product screenshots.
+            <span aria-hidden="true">↳</span> Project visuals are original
+            concept studies based on my professional work.
           </p>
         </section>
 
@@ -469,20 +428,10 @@ export default function Page() {
           aria-labelledby="experience-title"
         >
           <div className="section-heading">
-            <p className="eyebrow">
-              <span className="section-index">02 /</span> Experience
-            </p>
-            <div>
-              <h2 id="experience-title">
-                Always building.
-                <br />
-                <span>Always learning.</span>
-              </h2>
-              <p>
-                From CAD tools to full stack applications and immersive
-                experiences.
-              </p>
-            </div>
+            <h2 id="experience-title">Experience</h2>
+            <a className="text-link" href="/Alex_Mills_Resume.pdf" download>
+              Download résumé <PiDownloadSimple aria-hidden="true" />
+            </a>
           </div>
           <div className="timeline">
             {experience.map((job, i) => (
@@ -510,13 +459,6 @@ export default function Page() {
               </article>
             ))}
           </div>
-          <a
-            className="text-link experience-resume"
-            href="/Alex_Mills_Resume.pdf"
-            download
-          >
-            The full story, on one page <PiArrowUpRight aria-hidden="true" />
-          </a>
         </section>
 
         <section
@@ -525,14 +467,7 @@ export default function Page() {
           aria-labelledby="about-title"
         >
           <div className="about-lead">
-            <p className="eyebrow">
-              <span className="section-index">03 /</span> A bit about me
-            </p>
-            <h2 id="about-title">
-              Engineer by trade.
-              <br />
-              <span>Curious by default.</span>
-            </h2>
+            <h2 id="about-title">About me</h2>
             <a
               className="github-link"
               href="https://github.com/alexbmills5"
@@ -561,16 +496,6 @@ export default function Page() {
               thoughtful testing, and collaborating with people who bring
               different perspectives to a problem.
             </p>
-            <div className="about-facts">
-              <div>
-                <span>2021</span>
-                <p>Started building professionally</p>
-              </div>
-              <div>
-                <span>4</span>
-                <p>Engineering roles along the way</p>
-              </div>
-            </div>
             <div className="education">
               <span className="eyebrow">Education</span>
               <p>High School Diploma, Computer Science</p>
@@ -585,31 +510,22 @@ export default function Page() {
           aria-labelledby="contact-title"
         >
           <div className="contact-intro">
-            <p className="eyebrow">
-              <span className="section-index">04 /</span> Let’s connect
-            </p>
             <h2 id="contact-title">
-              Good software
-              <br />
-              starts with a<br />
-              <span>conversation.</span>
+              Let’s talk<span>.</span>
             </h2>
             <p>
-              Have an engineering opportunity, a project, or a problem worth
-              solving? I’d like to hear about it.
+              Have an engineering opportunity or a project in mind? I’d like
+              to hear about it.
             </p>
             <a className="email-link" href="mailto:alexbmills@pm.me">
               alexbmills@pm.me <PiArrowUpRight aria-hidden="true" />
             </a>
-            <span className="contact-location">
-              Based in Palm Harbor, Florida
-            </span>
           </div>
-          <form className="contact-form" onSubmit={handleSendMessage}>
-            <div className="form-topline">
-              <span>Start a conversation</span>
-              <PiArrowUpRight aria-hidden="true" />
-            </div>
+          <form
+            className="contact-form"
+            aria-label="Send Alex a message"
+            onSubmit={handleSendMessage}
+          >
             <label>
               <span>Your name</span>
               <input
@@ -618,7 +534,6 @@ export default function Page() {
                 type="text"
                 name="name"
                 autoComplete="name"
-                placeholder="Alex, meet…"
                 required
                 maxLength={120}
               />
@@ -631,19 +546,17 @@ export default function Page() {
                 type="email"
                 name="email"
                 autoComplete="email"
-                placeholder="you@example.com"
                 required
                 maxLength={254}
               />
             </label>
             <label>
-              <span>What are you thinking?</span>
+              <span>Message</span>
               <textarea
                 value={senderMessage}
                 onChange={(event) => setSenderMessage(event.target.value)}
                 name="message"
                 rows={3}
-                placeholder="A role, a project, an interesting problem…"
                 required
                 maxLength={4000}
               />
@@ -678,7 +591,7 @@ export default function Page() {
         <a className="name-link" href="#top">
           Alex Mills<span className="name-dot">.</span>
         </a>
-        <span>© {new Date().getFullYear()} · Built with curiosity.</span>
+        <span>© {new Date().getFullYear()} Alex Mills</span>
         <a href="#top">
           Back to top <PiArrowUpRight aria-hidden="true" />
         </a>

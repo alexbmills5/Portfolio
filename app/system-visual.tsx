@@ -29,14 +29,23 @@ export function SystemVisual() {
   const pausedRef = useRef(false);
   const [mode, setMode] = useState(0);
   const [paused, setPaused] = useState(false);
-  pausedRef.current = paused;
+
+  useEffect(() => {
+    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const syncPreference = () => {
+      pausedRef.current = preference.matches;
+      setPaused(preference.matches);
+    };
+    syncPreference();
+    preference.addEventListener("change", syncPreference);
+    return () => preference.removeEventListener("change", syncPreference);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const context = canvas.getContext("2d");
     if (!context) return;
-    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
     let width = 0,
       height = 0,
       frame = 0,
@@ -65,11 +74,11 @@ export function SystemVisual() {
     const draw = (now: number) => {
       frame = requestAnimationFrame(draw);
       if (!visible || document.hidden || now - lastFrame < 32) return;
-      if ((pausedRef.current || motion.matches) && !dirty) return;
+      if (pausedRef.current && !dirty) return;
       dirty = false;
       const delta = Math.min((now - lastFrame) / 1000, 0.05);
       lastFrame = now;
-      if (!pausedRef.current && !motion.matches) {
+      if (!pausedRef.current) {
         timeRef.current += delta * 0.12;
         angleX += (pointerRef.current.y * 0.2 - angleX) * 0.04;
         angleY += (pointerRef.current.x * 0.25 - angleY) * 0.04;
@@ -77,13 +86,17 @@ export function SystemVisual() {
       const time = timeRef.current;
       context.clearRect(0, 0, width, height);
       const radius = Math.min(width * 0.31, height * 0.34);
-      const rotation = time + angleY;
+      const rotation = 0.22 + time + angleY;
       const tilt = -0.3 + angleX;
+      const cosRotation = Math.cos(rotation);
+      const sinRotation = Math.sin(rotation);
+      const cosTilt = Math.cos(tilt);
+      const sinTilt = Math.sin(tilt);
       const project = (p: Point) => {
-        const x = p.x * Math.cos(rotation) + p.z * Math.sin(rotation);
-        const z = -p.x * Math.sin(rotation) + p.z * Math.cos(rotation);
-        const y = p.y * Math.cos(tilt) - z * Math.sin(tilt);
-        const depth = p.y * Math.sin(tilt) + z * Math.cos(tilt);
+        const x = p.x * cosRotation + p.z * sinRotation;
+        const z = -p.x * sinRotation + p.z * cosRotation;
+        const y = p.y * cosTilt - z * sinTilt;
+        const depth = p.y * sinTilt + z * cosTilt;
         const perspective = 3.8 / (3.8 - depth);
         return {
           x: width / 2 + x * radius * perspective,
@@ -99,7 +112,7 @@ export function SystemVisual() {
           depth += q.depth;
           i === 0 ? context.moveTo(q.x, q.y) : context.lineTo(q.x, q.y);
         });
-        context.strokeStyle = `rgba(229,56,59,${alpha * (0.8 + (depth / points.length + 1) * 0.3)})`;
+        context.strokeStyle = `rgba(255,119,102,${alpha * (0.8 + (depth / points.length + 1) * 0.3)})`;
         context.lineWidth = thick;
         context.stroke();
       };
@@ -206,8 +219,8 @@ export function SystemVisual() {
           z: Math.sin(a) * (orbit === 0 ? 1.25 : 0.9),
         });
         context.shadowBlur = 16;
-        context.shadowColor = "#e5383b";
-        context.fillStyle = "#ffffff";
+        context.shadowColor = "#ff7766";
+        context.fillStyle = "#fff2e8";
         context.beginPath();
         context.arc(dot.x, dot.y, 3, 0, Math.PI * 2);
         context.fill();
@@ -239,12 +252,15 @@ export function SystemVisual() {
     >
       <div className="system-topline">
         <span>
-          <span className="tiny-cross" /> Systems in motion
+          <span className="tiny-cross" aria-hidden="true" /> Systems in motion
         </span>
         <button
           type="button"
           className="motion-toggle"
-          onClick={() => setPaused(!paused)}
+          onClick={() => {
+            pausedRef.current = !paused;
+            setPaused(!paused);
+          }}
           aria-label={
             paused ? "Play visual animation" : "Pause visual animation"
           }
@@ -288,7 +304,6 @@ export function SystemVisual() {
             aria-pressed={mode === i}
             onClick={() => setMode(i)}
           >
-            <span className="mode-number">0{i + 1}</span>
             {item.label}
           </button>
         ))}
