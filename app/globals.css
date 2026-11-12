@@ -501,9 +501,12 @@ h2 {
 }
 
 .project-visual {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   position: relative;
   isolation: isolate;
   overflow: hidden;
+  width: 100%;
   min-height: 20rem;
   aspect-ratio: 1.61;
   border: 1px solid var(--line);
@@ -629,8 +632,6 @@ h2 {
 }
 
 .workflow-art {
-  position: absolute;
-  inset: 3rem 0 0;
   display: flex;
   flex-direction: column;
   padding: 1.15rem 1.2rem;
@@ -693,9 +694,8 @@ h2 {
 .care-art {
   display: grid;
   place-items: center;
-  position: absolute;
-  inset: 3rem 0 0;
-  padding: 1.25rem clamp(1.2rem, 4.5vw, 3.5rem);
+  min-width: 0;
+  padding: 1rem clamp(1rem, 4.5vw, 3.5rem);
 }
 .care-window {
   width: 100%;
@@ -708,8 +708,10 @@ h2 {
   overflow: hidden;
   transition: transform 0.5s var(--ease);
 }
-.project:hover .care-window {
-  transform: rotate(-1deg) translateY(-3px);
+@media (hover: hover) and (pointer: fine) {
+  .project:hover .care-window {
+    transform: rotate(-1deg) translateY(-3px);
+  }
 }
 .care-window-head {
   display: flex;
@@ -813,8 +815,7 @@ h2 {
 }
 
 .spatial-art {
-  position: absolute;
-  inset: 3.4rem 0 0;
+  position: relative;
   perspective: 700px;
 }
 .spatial-grid {
@@ -1256,6 +1257,23 @@ h2 {
     min-height: 17rem;
   }
 
+  .care-art {
+    padding-inline: clamp(0.85rem, 4.5vw, 2rem);
+  }
+
+  .care-window {
+    transform: none;
+  }
+
+  .contact-section,
+  .site-footer {
+    border-top: 0;
+  }
+
+  .contact-section::before {
+    border-block: 1px solid var(--line);
+  }
+
   .section-heading {
     flex-direction: column;
     align-items: flex-start;
@@ -1313,6 +1331,18 @@ h2 {
 
   .workflow-track {
     font-size: 0.58rem;
+  }
+
+  .diagram-line,
+  .diagram-core,
+  .diagram-detail,
+  .diagram-node {
+    vector-effect: non-scaling-stroke;
+  }
+
+  .visual-bottomline {
+    padding-top: 0.75rem;
+    border-color: var(--line);
   }
 
   .care-window-body {
