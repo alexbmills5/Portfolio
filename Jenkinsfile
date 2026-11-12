@@ -58,11 +58,13 @@ pipeline {
                 script {
                     runCommand('node -e "if (process.versions.node.split(\'.\')[0] !== \'24\') throw new Error(\'Node.js 24 is required\')"')
                     runCommand('npm --version')
-                    retry(2) {
-                        runCommand('npm ci')
+                    withEnv(["npm_config_cache=${pwd(tmp: true)}/npm-cache"]) {
+                        retry(2) {
+                            runCommand('npm ci')
+                        }
+                        runCommand('npm run build')
+                        runCommand('npm install --prefix node_modules/.jenkins-vercel --no-save --no-package-lock vercel@65.15.0')
                     }
-                    runCommand('npm run build')
-                    runCommand('npm install --prefix node_modules/.jenkins-vercel --no-save --no-package-lock vercel@65.15.0')
                 }
             }
         }
