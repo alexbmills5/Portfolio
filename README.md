@@ -37,8 +37,13 @@ preview. Builds triggered by a new commit on `main` deploy to production
 after `npm run build` passes. Jenkins submits the checked-out source and
 Vercel builds it with the target environment's settings.
 
-1. Use a Jenkins agent with Git and Node.js 24 on its PATH. The job needs
-   outbound HTTPS access to GitHub, npm, Google Fonts, and Vercel.
+1. Install the [NodeJS plugin](https://plugins.jenkins.io/nodejs/) under
+   **Manage Jenkins → Plugins**. Then open **Manage Jenkins → Tools**,
+   add a NodeJS installation named exactly `NodeJS 24`, enable
+   **Install automatically**, and select a Node.js 24.x release. Jenkins
+   adds that installation to the agent's PATH when the job starts.
+   The agent also needs Git and outbound HTTPS access to GitHub,
+   nodejs.org, npm, Google Fonts, and Vercel.
 2. In Jenkins, add a **Secret text** credential with ID
    `portfolio-vercel-token`. Use a Vercel token scoped to the team that owns
    the `portfolio` project.

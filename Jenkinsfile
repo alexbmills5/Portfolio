@@ -19,6 +19,10 @@ def deployToVercel(boolean production) {
 pipeline {
     agent any
 
+    tools {
+        nodejs 'NodeJS 24'
+    }
+
     options {
         skipDefaultCheckout()
         disableConcurrentBuilds()
