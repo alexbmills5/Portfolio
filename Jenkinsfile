@@ -11,8 +11,11 @@ def deployToVercel(boolean production) {
     if (production) {
         command += ' --prod'
     }
-    withCredentials([string(credentialsId: 'portfolio-vercel-token', variable: 'VERCEL_TOKEN')]) {
-        runCommand(command)
+    def vercelStateDir = "${pwd(tmp: true)}/vercel"
+    withEnv(["XDG_DATA_HOME=${vercelStateDir}/data", "XDG_CACHE_HOME=${vercelStateDir}/cache"]) {
+        withCredentials([string(credentialsId: 'portfolio-vercel-token', variable: 'VERCEL_TOKEN')]) {
+            runCommand(command)
+        }
     }
 }
 
